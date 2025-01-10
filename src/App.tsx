@@ -1,26 +1,41 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { useState } from "react";
+import { Box } from "@mui/material";
+import "./styles.css";
+import { CellValue } from "./types";
+import { Board } from "./components/Board";
+import { calculateWinner } from "./utils";
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+const BOARD_CELLS_AMOUNT = 9;
+
+const App: React.FC = () => {
+  const [boardCells, setBoardCells] = useState<CellValue[]>(
+    Array(BOARD_CELLS_AMOUNT).fill(null)
   );
-}
+  const [isXNext, setIsXNext] = useState<boolean>(true);
+  const [winner, setWinner] = useState<CellValue | "Tie">(null);
+
+  const handleCellClick = (index: number) => {
+    if (boardCells[index] || winner) return;
+
+    const newBoard = [...boardCells];
+    newBoard[index] = isXNext ? "X" : "O";
+    setBoardCells(newBoard);
+    setIsXNext(!isXNext);
+
+    const gameWinner = calculateWinner(newBoard);
+
+    if (gameWinner) {
+      setWinner(gameWinner);
+    } else if (!newBoard.includes(null)) {
+      setWinner("Tie");
+    }
+  };
+
+  return (
+    <Box display="flex" flexDirection="column" alignItems="center" mt={4}>
+      <Board boardCells={boardCells} onCellClick={handleCellClick} />
+    </Box>
+  );
+};
 
 export default App;
